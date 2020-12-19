@@ -10,11 +10,19 @@ from typing import Tuple
 from prettytable import PrettyTable
 
 
+from ROAR.agent_module.pid_agent import PIDAgent
+from ROAR.agent_module.rl_testing_pid_agent import RLPIDAgent
+
+
 def compute_score(carla_runner: CarlaRunner) -> Tuple[float, int, bool]:
     time_elapsed: float = carla_runner.end_simulation_time - carla_runner.start_simulation_time
     num_collision: int = carla_runner.agent_collision_counter
     lap_completed = True if \
         np.linalg.norm(carla_runner.end_vehicle_position - carla_runner.start_vehicle_position) < 50 else False
+
+    if lap_completed:
+        print("********* COMPLETED RACE TIME:" + str(time_elapsed))
+
     return time_elapsed, num_collision, lap_completed
 
 
@@ -39,7 +47,7 @@ def run(agent_class, agent_config_file_path: Path, carla_config_file_path: Path)
     try:
         my_vehicle = carla_runner.set_carla_world()
         agent = agent_class(vehicle=my_vehicle, agent_settings=agent_config)
-        carla_runner.start_game_loop(agent=agent, use_manual_control=True)
+        carla_runner.start_game_loop(agent=agent, use_manual_control=False) # original: True
         return compute_score(carla_runner)
     except Exception as e:
         print(f"something bad happened during initialization: {e}")
@@ -59,7 +67,8 @@ def suppress_warnings():
 
 def main():
     suppress_warnings()
-    agent_class = PurePursuitAgent
+    agent_class = RLPIDAgent # original: PurePursuitAgent
+    # agent_class = PIDAgent
     num_trials = 2
     total_score = 0
     table = PrettyTable()

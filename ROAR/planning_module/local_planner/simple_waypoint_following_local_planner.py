@@ -13,7 +13,7 @@ from ROAR.utilities_module.errors import (
 from ROAR.agent_module.agent import Agent
 import json
 from pathlib import Path
-
+import time
 
 class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
     def __init__(
@@ -102,16 +102,18 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
         curr_closest_dist = float("inf")
         while True:
             if len(self.way_points_queue) == 0:
-                self.logger.info("Destination reached")
+                self.logger.info(f"Destination reached at time: {time.time()}")
                 return VehicleControl()
             waypoint: Transform = self.way_points_queue[0]
             curr_dist = vehicle_transform.location.distance(waypoint.location)
             if curr_dist < curr_closest_dist:
                 # if i find a waypoint that is closer to me than before
                 # note that i will always enter here to start the calculation for curr_closest_dist
+                # print("[CONTROLLER] NOT UPDATING")
                 curr_closest_dist = curr_dist
             elif curr_dist < self.closeness_threshold:
                 # i have moved onto a waypoint, remove that waypoint from the queue
+                # print("[CONTROLLER] UPDATING")
                 self.way_points_queue.popleft()
             else:
                 break

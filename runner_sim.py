@@ -16,6 +16,8 @@ from ROAR.configurations.configuration import Configuration as AgentConfig
 from ROAR.agent_module.special_agents.waypoint_generating_agent import WaypointGeneratigAgent
 from ROAR.agent_module.rl_testing_pid_agent import RLPIDAgent
 
+from ROAR.agent_module.jAM3Agent import JAM3Agent
+from ROAR.agent_module.jAM1Agent import JAM1Agent
 
 def main():
     agent_config = AgentConfig.parse_file(Path("./ROAR_Sim/configurations/agent_configuration.json"))
@@ -26,7 +28,10 @@ def main():
                                npc_agent_class=PurePursuitAgent)
     try:
         my_vehicle = carla_runner.set_carla_world()
-        agent = RLPIDAgent(vehicle=my_vehicle, agent_settings=agent_config)
+        # agent = RLPIDAgent(vehicle=my_vehicle, agent_settings=agent_config)
+        agent = JAM1Agent(vehicle=my_vehicle, agent_settings=agent_config)
+        # agent = JAM3Agent(vehicle=my_vehicle, agent_settings=agent_config)
+
         carla_runner.start_game_loop(agent=agent, use_manual_control=False)
     except Exception as e:
         logging.error(f"Something bad happened during initialization: {e}")
