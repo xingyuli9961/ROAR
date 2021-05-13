@@ -2,7 +2,7 @@ from ROAR.agent_module.agent import Agent
 from ROAR.utilities_module.data_structures_models import SensorsData
 from ROAR.utilities_module.vehicle_models import Vehicle, VehicleControl
 from ROAR.configurations.configuration import Configuration as AgentConfig
-from ROAR.perception_module.lane_detector import LaneDetector
+from ROAR.perception_module.legacy.lane_detector import LaneDetector
 
 
 class LaneDetectionAgent(Agent):

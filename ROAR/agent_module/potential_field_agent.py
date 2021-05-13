@@ -2,22 +2,13 @@ from ROAR.agent_module.agent import Agent
 from ROAR.utilities_module.data_structures_models import SensorsData
 from ROAR.utilities_module.vehicle_models import Vehicle, VehicleControl
 from ROAR.configurations.configuration import Configuration as AgentConfig
-from ROAR.perception_module.ground_plane_detector import GroundPlaneDetector
-from ROAR.perception_module.depth_to_pointcloud_detector import DepthToPointCloudDetector
-import numpy as np
 from ROAR.control_module.pid_controller import PIDController
 from ROAR.planning_module.local_planner.potential_field_planner import PotentialFieldPlanner
 from ROAR.planning_module.behavior_planner.behavior_planner import BehaviorPlanner
 from ROAR.planning_module.mission_planner.waypoint_following_mission_planner import WaypointFollowingMissionPlanner
-from ROAR.perception_module.obstacle_detector import ObstacleDetector
 from pathlib import Path
 from ROAR.utilities_module.occupancy_map import OccupancyGridMap
-import matplotlib.pyplot as plt
-import open3d as o3d
-import cv2
-from ROAR.perception_module.legacy.point_cloud_detector import PointCloudDetector
 from ROAR.perception_module.obstacle_from_depth import ObstacleFromDepth
-import time
 
 
 class PotentialFieldAgent(Agent):
@@ -31,7 +22,6 @@ class PotentialFieldAgent(Agent):
         self.add_threaded_module(self.depth_to_obstacle)
         # occu_map_file_path = Path("./ROAR_Sim/data/easy_map_cleaned_global_occu_map.npy")
         # self.occupancy_map.load_from_file(occu_map_file_path)
-
 
         self.pid_controller = PIDController(agent=self, steering_boundary=(-1, 1), throttle_boundary=(0, 1))
         self.mission_planner = WaypointFollowingMissionPlanner(agent=self)

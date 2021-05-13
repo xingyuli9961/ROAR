@@ -18,6 +18,7 @@ from datetime import datetime
 import threading
 from ROAR.utilities_module.camera_models import Camera
 
+
 class Agent(ABC):
     """
     Abstract Agent class that define the minimum of a ROAR agent.
@@ -225,7 +226,6 @@ class Agent(ABC):
         try:
             transform_file = (Path(self.transform_output_folder_path) /
                               f"frame_{now}.txt").open('w')
-            print(f"Recording -> {self.vehicle.transform.record()}")
             transform_file.write(self.vehicle.transform.record())
             transform_file.close()
         except Exception as e:

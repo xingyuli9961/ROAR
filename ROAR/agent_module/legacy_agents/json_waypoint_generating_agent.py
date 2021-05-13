@@ -3,10 +3,7 @@ from ROAR.utilities_module.data_structures_models import SensorsData
 from ROAR.utilities_module.vehicle_models import Vehicle, VehicleControl
 from ROAR.configurations.configuration import Configuration as AgentConfig
 from pathlib import Path
-from ROAR.perception_module.depth_to_pointcloud_detector import DepthToPointCloudDetector
-from ROAR.perception_module.ground_plane_detector import GroundPlaneDetector
-import numpy as np
-import open3d as o3d
+from ROAR.perception_module.legacy.ground_plane_detector import GroundPlaneDetector
 
 
 class JSONWaypointGeneratigAgent(Agent):

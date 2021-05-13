@@ -6,6 +6,17 @@ from pathlib import Path
 class Module(ABC):
     def __init__(self, threaded=False, update_interval: float = 0.5,
                  should_save: bool = False, name: str = "module", **kwargs):
+        """
+        Base class for all ROAR classes
+        Args:
+            threaded: whether or not this class support multi threadding
+            update_interval: update every update_interval seconds.
+                             If the process runs longer than update interval,
+                             it will just start immediately after the previous one has finished
+            should_save: should save to disc
+            name: name of the module
+            **kwargs:
+        """
         self.threaded = threaded
         self.update_interval = update_interval
         self.should_continue_threaded = True

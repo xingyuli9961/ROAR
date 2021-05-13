@@ -1,9 +1,9 @@
 from ROAR.agent_module.agent import Agent
-from ROAR.perception_module.depth_to_pointcloud_detector import DepthToPointCloudDetector
+from ROAR.perception_module.legacy.depth_to_pointcloud_detector import DepthToPointCloudDetector
 import numpy as np
 from typing import Optional, Any
 import open3d as o3d
-import time, cv2
+import cv2
 
 
 class GroundPlaneDetector(DepthToPointCloudDetector):

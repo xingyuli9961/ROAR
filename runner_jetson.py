@@ -10,7 +10,6 @@ from ROAR.configurations.configuration import Configuration as AgentConfig
 # from ROAR.agent_module.lane_detection_agent import LaneDetectionAgent
 from ROAR.agent_module.occupancy_map_agent import OccupancyMapAgent
 # from ROAR.agent_module.special_agents.recording_agent import RecordingAgent
-from ROAR.agent_module.michael_pid_agent import PIDAgent
 from pathlib import Path
 import logging
 import warnings

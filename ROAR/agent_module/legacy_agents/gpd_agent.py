@@ -2,7 +2,7 @@ from ROAR.agent_module.agent import Agent
 from ROAR.utilities_module.vehicle_models import Vehicle, VehicleControl
 from ROAR.configurations.configuration import Configuration as AgentConfig
 from ROAR.utilities_module.data_structures_models import SensorsData
-from ROAR.perception_module.ground_plane_detector import GroundPlaneDetector
+from ROAR.perception_module.legacy.ground_plane_detector import GroundPlaneDetector
 
 import open3d as o3d
 

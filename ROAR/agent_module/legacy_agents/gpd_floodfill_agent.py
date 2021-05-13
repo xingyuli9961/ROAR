@@ -2,8 +2,7 @@ from ROAR.agent_module.agent import Agent
 from ROAR.utilities_module.data_structures_models import SensorsData
 from ROAR.utilities_module.vehicle_models import Vehicle, VehicleControl
 from ROAR.configurations.configuration import Configuration as AgentConfig
-from ROAR.perception_module.ground_plane_detector import GroundPlaneDetector
-import cv2
+from ROAR.perception_module.legacy.ground_plane_detector import GroundPlaneDetector
 
 
 class GPDFloodFillAgent(Agent):

@@ -144,9 +144,9 @@ class OccupancyGridMap(Module):
         Returns:
             None
         """
-        indices_to_select = np.random.choice(np.shape(world_coords)[0], size=min(self._max_points_to_convert,
-                                                                                 np.shape(world_coords)[0]))
-        world_coords = world_coords[indices_to_select]
+        # indices_to_select = np.random.choice(np.shape(world_coords)[0], size=min(self._max_points_to_convert,
+        #                                                                          np.shape(world_coords)[0]))
+        # world_coords = world_coords[indices_to_select]
         world_coords_xy = world_coords[:, [0, 2]] * self._world_coord_resolution
         self._update_grid_map_from_world_cord(world_cords_xy=world_coords_xy)
 

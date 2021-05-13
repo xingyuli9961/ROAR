@@ -2,7 +2,7 @@ from ROAR.agent_module.agent import Agent
 from ROAR.utilities_module.data_structures_models import SensorsData
 from ROAR.utilities_module.vehicle_models import Vehicle, VehicleControl
 from ROAR.configurations.configuration import Configuration as AgentConfig
-from ROAR.perception_module.ar_marker_localization_detector import ARMarkerLocalizationDetector
+from ROAR.perception_module.legacy.ar_marker_localization_detector import ARMarkerLocalizationDetector
 
 
 class ARMarkerAgent(Agent):

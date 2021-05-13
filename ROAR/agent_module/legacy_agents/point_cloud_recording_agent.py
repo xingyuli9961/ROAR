@@ -2,8 +2,7 @@ from ROAR.agent_module.agent import Agent
 from ROAR.utilities_module.data_structures_models import SensorsData
 from ROAR.utilities_module.vehicle_models import Vehicle, VehicleControl
 
-from ROAR.perception_module.depth_to_pointcloud_detector import DepthToPointCloudDetector
-from pathlib import Path
+from ROAR.perception_module.legacy.depth_to_pointcloud_detector import DepthToPointCloudDetector
 import numpy as np
 import cv2
 

@@ -6,6 +6,9 @@ import numpy as np
 import cv2
 import open3d
 from pydantic import BaseModel, Field
+import time
+from PIL import Image
+from skimage.measure import block_reduce
 
 
 class ObstacleFromDepth(Detector):
@@ -23,19 +26,21 @@ class ObstacleFromDepth(Detector):
     def run_in_series(self, **kwargs) -> Any:
         if self.agent.front_depth_camera.data is not None:
             depth_img = self.agent.front_depth_camera.data.copy()
-            coords = np.where(depth_img < self.max_detectable_distance)
+            # depth_img = depth_img[depth_img.shape[0] // 2:][:]
+            # depth_img = block_reduce(depth_img, (2,2), np.median)
+            indices = np.indices(depth_img.shape)
+            cols = indices[0].flatten()
+            rows = indices[1].flatten()
+            depth_img_1d = depth_img[cols, rows]
+            wat1 = depth_img_1d * rows * 1000
+            wat2 = depth_img_1d * cols * 1000
+            wat3 = depth_img.flatten() * 1000
+            raw_p2d = np.vstack([wat1, wat2, wat3])
 
-            indices_to_select = np.random.choice(np.shape(coords)[1],
-                                                 size=min([self.max_points_to_convert, np.shape(coords)[1]]),
-                                                 replace=False)
-            coords = (
-                coords[0][indices_to_select],
-                coords[1][indices_to_select]
-            )
-            raw_p2d = np.reshape(self._pix2xyz(depth_img=depth_img, i=coords[0], j=coords[1]),
-                                 (3, np.shape(coords)[1])).T
-
-            cords_y_minus_z_x = np.linalg.inv(self.agent.front_depth_camera.intrinsics_matrix) @ raw_p2d.T
+            # only take close indicies
+            close_indices = np.where(raw_p2d[2, :] < 100)
+            raw_p2d = np.squeeze(raw_p2d[:, close_indices])
+            cords_y_minus_z_x = np.linalg.inv(self.agent.front_depth_camera.intrinsics_matrix) @ raw_p2d
             cords_xyz_1 = np.vstack([
                 cords_y_minus_z_x[0, :],
                 -cords_y_minus_z_x[1, :],
@@ -48,15 +53,15 @@ class ObstacleFromDepth(Detector):
             pcd = open3d.geometry.PointCloud()
             pcd.points = open3d.utility.Vector3dVector(points)
             pcd.estimate_normals()
-            pcd.normalize_normals()
+            # pcd.normalize_normals()
 
             normals = np.asarray(pcd.normals)
             abs_normals = np.abs(normals)
             obstacles_mask = abs_normals[:, 1] < self.max_incline_normal
-            print(np.mean(points, axis=0), self.agent.vehicle.transform.location.y)
             obstacle_below_height_mask = \
                 np.abs(points[:, 1]) < self.agent.vehicle.transform.location.y + self.min_obstacle_height
             mask = obstacles_mask & obstacle_below_height_mask
+
             self.agent.kwargs["point_cloud_obstacle_from_depth"] = points
             self.agent.kwargs["obstacle_coords"] = points[mask]
             self.agent.kwargs["ground_coords"] = points[~mask]
