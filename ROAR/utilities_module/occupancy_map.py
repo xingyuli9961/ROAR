@@ -27,7 +27,6 @@ import json
 from PIL import Image
 
 
-
 class OccupancyGridMap(Module):
     def __init__(self, agent: Agent, **kwargs):
         """
@@ -72,9 +71,7 @@ class OccupancyGridMap(Module):
         x_total = self._max_x - self._min_x + 2 * self._map_additiona_padding
         y_total = self._max_y - self._min_y + 2 * self._map_additiona_padding
         self._map = np.zeros(shape=(x_total, y_total),
-                             dtype=np.half)  # dok_matrix((x_total, y_total), dtype=np.float32)
-        # self.logger.debug(f"Occupancy Grid Map of size {x_total} x {y_total} "
-        #                   f"initialized")
+                             dtype=np.float32)  # np.half
 
     def location_to_occu_cord(self, location: Location):
         return self.cord_translation_from_world(world_cords_xy=
@@ -129,7 +126,7 @@ class OccupancyGridMap(Module):
                                                                                     1]
                 min_x, max_x, min_y, max_y = np.min(occu_cords_x), np.max(occu_cords_x), \
                                              np.min(occu_cords_y), np.max(occu_cords_y)
-                self._map[min_y:max_y, min_x:max_x] = 0 # free
+                self._map[min_y:max_y, min_x:max_x] = 0  # free
                 self._map[occu_cords_y, occu_cords_x] += self._occu_prob
                 # self._map = self._map.clip(0, 1)
         except Exception as e:
@@ -197,7 +194,7 @@ class OccupancyGridMap(Module):
         """
         curr_map = self.get_map(transform=transform, view_size=view_size, vehicle_value=vehicle_value)
         try:
-            cv2.imshow("Occupancy Grid Map", cv2.resize(np.float32(curr_map), dsize=(500, 500)))
+            cv2.imshow("Occupancy Grid Map", cv2.resize(curr_map, dsize=(500, 500)))
             cv2.waitKey(1)
         except Exception as e:
             print(np.shape(curr_map))
