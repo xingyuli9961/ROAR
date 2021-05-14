@@ -205,7 +205,7 @@ class OccupancyGridMap(Module):
                 view_size: Tuple[int, int] = (100, 100),
                 boundary_size: Tuple[int, int] = (100, 100),
                 vehicle_value: Optional[int] = None,
-                arbitrary_locations: Optional[List[Location]] = None,
+                arbitrary_locations: Optional[Union[List[Union[Location]], np.ndarray]] = None,
                 arbitrary_point_value: Optional[float] = None) -> np.ndarray:
         """
         Return global occu map if transform is None
@@ -225,7 +225,7 @@ class OccupancyGridMap(Module):
         if transform is None:
             return np.float32(self._map.copy())
         else:
-            map_to_view = np.float32(self._map.copy())
+            map_to_view = self._map.copy()
             occu_cord = self.location_to_occu_cord(
                 location=transform.location)
             x, y = occu_cord[0]
@@ -234,8 +234,12 @@ class OccupancyGridMap(Module):
 
             if arbitrary_point_value is not None and arbitrary_locations is not None:
                 for location in arbitrary_locations:
-                    coord = self.location_to_occu_cord(location=location)[0]
-                    map_to_view[coord[1], coord[0]] = arbitrary_point_value
+                    if type(location) == Location:
+                        coord = self.location_to_occu_cord(location=location)[0]
+                        map_to_view[coord[1], coord[0]] = arbitrary_point_value
+                    else:
+                        # assume that it is already in the occu map coordinate
+                        map_to_view[location[1], location[0]] = 1
 
             first_cut_size = (view_size[0] + boundary_size[0], view_size[1] + boundary_size[1])
             map_to_view = map_to_view[y - first_cut_size[1] // 2: y + first_cut_size[1] // 2,
@@ -279,6 +283,10 @@ class OccupancyGridMap(Module):
                                            f"does not match the expected shape [{self._map.shape}]"
         self._map = m
         self._static_obstacles = np.vstack([np.where(self._map == 1)]).T
+
+    @property
+    def world_coord_resolution(self):
+        return self._world_coord_resolution
 
 
 class OccupancyGridMapConfig(BaseModel):
