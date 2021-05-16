@@ -30,30 +30,16 @@ class LineDetectAgent(Agent):
                                                                      behavior_planner=self.behavior_planner,
                                                                      mission_planner=self.mission_planner,
                                                                      controller=self.controller)
-        self.plan_lst = list(self.mission_planner.produce_mission_plan())
         self.occupancy_map = OccupancyGridMap(agent=self, threaded=True)
         self.obstacle_from_depth_detector = ObstacleFromDepth(agent=self, threaded=True)
         self.add_threaded_module(self.obstacle_from_depth_detector)
         self.add_threaded_module(self.occupancy_map)
         self.kwargs = kwargs
-        self.interval = self.kwargs.get('interval', 20)
-        self.look_back = self.kwargs.get('look_back', 5)
-        self.look_back_max = self.kwargs.get('look_back_max', 10)
-        self.thres = self.kwargs.get('thres', 1e-3)
-        self.int_counter = 0
-        self.counter = 0
-        self.finished = False
         self._get_next_bbox()
 
     def run_step(self, sensors_data: SensorsData, vehicle: Vehicle) -> VehicleControl:
         super(LineDetectAgent, self).run_step(sensors_data, vehicle)
-
-        self.counter += 1
-        if not self.finished:
-            crossed, dist = self.bbox.has_crossed(vehicle.transform)
-            if crossed:
-                self.int_counter += 1
-                self._get_next_bbox()
+        self._get_next_bbox()
 
         option = "obstacle_coords"  # ground_coords, obstacle_coords, point_cloud_obstacle_from_depth
         if self.kwargs.get(option, None) is not None:
@@ -76,3 +62,4 @@ class LineDetectAgent(Agent):
         t1 = self.local_planner.way_points_queue[index]
         t2 = self.local_planner.way_points_queue[(index + 1) % len(self.local_planner.way_points_queue)]
         self.bbox = LineBBox(t1, t2)
+

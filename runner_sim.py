@@ -5,7 +5,7 @@ from ROAR_Sim.carla_client.carla_runner import CarlaRunner
 from ROAR.agent_module.pure_pursuit_agent import PurePursuitAgent
 from ROAR.configurations.configuration import Configuration as AgentConfig
 # from ROAR.agent_module.occupancy_map_agent import OccupancyMapAgent
-from ROAR.agent_module.LineDetectAgent import LineDetectAgent
+from ROAR.agent_module.line_detect_agent_demo import LineDetectAgent
 
 
 

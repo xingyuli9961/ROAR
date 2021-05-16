@@ -239,7 +239,7 @@ class OccupancyGridMap(Module):
                         map_to_view[coord[1], coord[0]] = arbitrary_point_value
                     else:
                         # assume that it is already in the occu map coordinate
-                        map_to_view[location[1], location[0]] = 1
+                        map_to_view[location[1], location[0]] = arbitrary_point_value
 
             first_cut_size = (view_size[0] + boundary_size[0], view_size[1] + boundary_size[1])
             map_to_view = map_to_view[y - first_cut_size[1] // 2: y + first_cut_size[1] // 2,
