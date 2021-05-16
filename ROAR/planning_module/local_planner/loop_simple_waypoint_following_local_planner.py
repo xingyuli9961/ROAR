@@ -86,6 +86,7 @@ class LoopSimpleWaypointFollowingLocalPlanner(LocalPlanner):
             if curr_speed < speed_upper_bound:
                 self.closeness_threshold = closeness_threshold
                 break
+
     def find_next_waypoint(self):
         # redefine closeness level based on speed
         self.set_closeness_threhold(self.closeness_threshold_config)
@@ -109,5 +110,6 @@ class LoopSimpleWaypointFollowingLocalPlanner(LocalPlanner):
                 break
         target_waypoint = self.way_points_queue[self._curr_waypoint_index]
         return target_waypoint
+
     def get_curr_waypoint_index(self):
         return self._curr_waypoint_index
