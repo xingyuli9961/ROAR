@@ -37,14 +37,16 @@ class RLLocalPlannerAgent(Agent):
         self.occupancy_map.load_from_file(occu_map_file_path)
         self.bbox: Optional[LineBBox] = None
         self._get_next_bbox()
+        self.view_size = 50
 
     def run_step(self, vehicle: Vehicle,
                  sensors_data: SensorsData) -> VehicleControl:
         super(RLLocalPlannerAgent, self).run_step(vehicle=vehicle,
                                                   sensors_data=sensors_data)
         self.local_planner.run_in_series()
-        self._get_next_bbox()
-
+        has_crossed, dist = self.bbox.has_crossed(self.vehicle.transform)
+        if has_crossed:
+            self._get_next_bbox()
         if self.kwargs.get("control") is not None:
             return self.kwargs.get("control")
         return VehicleControl()
@@ -57,13 +59,13 @@ class RLLocalPlannerAgent(Agent):
 
     def get_obs(self) -> np.ndarray:
         strip_locs = self.occupancy_map.cord_translation_from_world(
-            self.bbox.get_visualize_locs(size=20) * self.occupancy_map.world_coord_resolution)
+            self.bbox.get_visualize_locs(size=30) * self.occupancy_map.world_coord_resolution)
         full_occu_map = self.occupancy_map.get_map(transform=self.vehicle.transform,
-                                                   view_size=(100, 100),
+                                                   view_size=(self.view_size, self.view_size),
                                                    arbitrary_locations=strip_locs,
                                                    arbitrary_point_value=-10)
         occu_strip_locs = np.where(full_occu_map == -10)
-        obs = np.zeros(shape=(100, 100, 3), dtype=np.uint8)
+        obs = np.zeros(shape=(self.view_size, self.view_size, 3), dtype=np.uint8)
         obs[:, :, 0] = (full_occu_map.clip(0, 1) * 255).astype(np.uint8)
         obs[occu_strip_locs[0], occu_strip_locs[1], 1] = 1
         obs[:, :, 1] = (obs[:, :, 1] * 255).astype(np.uint8)
