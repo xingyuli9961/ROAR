@@ -25,17 +25,15 @@ class UDP_PID_CONTROLLER(Controller):
         self.lon_kd = 0.1  # this is how much you want to resist change
         self.lon_ki = 0.025  # this is the correction on past error
 
-    def run_in_series(self, target_point=None, self_point=None, **kwargs) -> VehicleControl:
+    def run_in_series(self, target_point=None, **kwargs) -> VehicleControl:
         control = VehicleControl()
-        self_point[0] = self_point[0] - self.center_x
-        target_point[0] = target_point[0] - self.center_x
-        self.lateral_pid_control(target_point, self_point, control=control)
-        self.long_pid_control(target_point, self_point, control=control)
-        print(control)
+        self.lateral_pid_control(target_point, control=control)
+        self.long_pid_control(target_point, control=control)
         return control
 
-    def lateral_pid_control(self, target_point, self_point, control: VehicleControl):
+    def lateral_pid_control(self, target_point, control: VehicleControl):
         # calculate a vector that represent where you are going
+        self_point = self.agent.vehicle.transform.to_array()
         v_begin = self_point[:3]
         direction_vector = np.array([
             -np.sin(np.deg2rad(self_point[5])),
@@ -70,7 +68,9 @@ class UDP_PID_CONTROLLER(Controller):
         lat_control = np.clip(raw_steering, -1, 1)
         control.steering = lat_control
 
-    def long_pid_control(self, target_point, self_point, control: VehicleControl):
+    def long_pid_control(self, target_point, control: VehicleControl):
+        self_point = self.agent.vehicle.transform.to_array()
+
         x_diff = target_point[0] - self_point[0]
         y_diff = target_point[1] - self_point[1]
         z_diff = target_point[2] - self_point[2]
