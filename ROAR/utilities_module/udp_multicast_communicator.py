@@ -16,7 +16,7 @@ class UDPMulticastCommunicator(Module):
         self.ttl = 2  # 2-hop restriction in the network
         self.recv_sock = None
         self.connect()
-        self.recv_data = []
+        self.recv_data = {}
         self.send_sock = socket.socket(socket.AF_INET,
                                        socket.SOCK_DGRAM,
                                        socket.IPPROTO_UDP)
@@ -32,7 +32,8 @@ class UDPMulticastCommunicator(Module):
                 self.reconnect()
                 self.counter = 0
             data: bytes = self.recv_sock.recv(1024)
-            self.recv_data = data.decode('utf-8').split(",")
+            data_array = data.decode('utf-8').split(",")
+            self.recv_data[data_array[0]] = data_array[1:]
 
         except socket.timeout as e:
             pass
