@@ -21,24 +21,23 @@ class UDP_PID_CONTROLLER(Controller):
         self._dt = 0.03
 
         self.distance_to_keep = distance_to_keep
-        self.max_throttle = 0.18
+        self.max_throttle = 0.14
         self.lon_kp = 0.17  # this is how much you want to steer
         self.lon_kd = 0.1  # this is how much you want to resist change
-        self.lon_ki = 0.025  # this is the correction on past error
+        self.lon_ki = 0.05  # this is the correction on past error
 
-    def run_in_series(self, target_point: List, **kwargs) -> VehicleControl:
-        next_waypoint: Transform = Transform.from_array(target_point)
+    def run_in_series(self, next_waypoint: Transform, **kwargs) -> VehicleControl:
         control = VehicleControl()
         self.lateral_pid_control(next_waypoint, control=control)
-        self.long_pid_control(target_point, control=control)
+        self.long_pid_control(next_waypoint, control=control)
         return control
 
     def lateral_pid_control(self, next_waypoint: Transform, control: VehicleControl):
         # calculate a vector that represent where you are going
         v_begin = self.agent.vehicle.transform.location.to_array()
-        direction_vector = np.array([-np.sin(np.deg2rad(self.agent.vehicle.transform.rotation.yaw)),
+        direction_vector = np.array([-np.sin(np.deg2rad(-self.agent.vehicle.transform.rotation.yaw)), # i think the direction of yaw is different in simulation vs in iOS
                                      0,
-                                     -np.cos(np.deg2rad(self.agent.vehicle.transform.rotation.yaw))])
+                                     -np.cos(np.deg2rad(-self.agent.vehicle.transform.rotation.yaw))])
         v_end = v_begin + direction_vector
 
         v_vec = np.array([(v_end[0] - v_begin[0]), 0, (v_end[2] - v_begin[2])])
@@ -55,7 +54,8 @@ class UDP_PID_CONTROLLER(Controller):
         w_vec_normed = w_vec / np.linalg.norm(w_vec)
         error = np.arccos(v_vec_normed @ w_vec_normed.T)
         _cross = np.cross(v_vec_normed, w_vec_normed)
-
+        # print(error, _cross, v_vec_normed, w_vec_normed)
+        # print(f"error: {error} | yaw = {self.agent.vehicle.transform.rotation.yaw} | v_vec = {v_vec_normed.tolist()} | w_vec_normed = {w_vec_normed.tolist()} | _cross[1] = {_cross[1]}")
         if _cross[1] > 0:
             error *= -1
         self.lat_error_queue.append(error)
@@ -73,17 +73,17 @@ class UDP_PID_CONTROLLER(Controller):
             np.clip((k_p * error) + (k_d * _de) + (k_i * _ie), -1, 1)
         )
         control.steering = lat_control
-        print(control, v_vec_normed, w_vec_normed, next_waypoint.location, v_begin)
+        # print(control, v_vec_normed, w_vec_normed, next_waypoint.location, v_begin, error)
 
-    def long_pid_control(self, target_point, control: VehicleControl):
+    def long_pid_control(self, next_waypoint, control: VehicleControl):
         self_point = self.agent.vehicle.transform.to_array()
-
+        target_point = next_waypoint.location.to_array()
         x_diff = target_point[0] - self_point[0]
         y_diff = target_point[1] - self_point[1]
         z_diff = target_point[2] - self_point[2]
         dist_to_car = math.sqrt(x_diff * x_diff + z_diff * z_diff)
         if dist_to_car < self.distance_to_keep:
-            self.logger.info("TOO CLOSE BRAKING!")
+            self.logger.info(f"TOO CLOSE BRAKING! dist_to_car: {dist_to_car} < self.distance_to_keep:{self.distance_to_keep}")
             control.brake = True
             control.throttle = 0
         else:
